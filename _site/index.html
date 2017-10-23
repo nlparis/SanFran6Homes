@@ -17,7 +17,7 @@
 {"name":"SanFran6Homes","description":"There are at least 6 homes you may stay in in San Francisco (for a few nights, probably.) This web app will help you find one (probably.)","author":null,"@type":"WebSite","url":"http://localhost:4000/","publisher":null,"image":null,"headline":"Home","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link href="/assets/css/style.css?v=9113741d65a5470cefcc04ffe73e156c16279372" rel="stylesheet">
+    <link href="/assets/css/style.css?v=54da101f5df8c3f04804e05323fff25567f1b402" rel="stylesheet">
   </head>
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
@@ -26,10 +26,69 @@
       
 
       <div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
+        <script>
+        var data;
+        $.ajax({
+            type: "GET",
+            url: "calendar.csv",
+            dataType: "text",
+            success: function(response)
+            {
+                console.log(response + " response ");
+                data = $.csv.toArrays(response);
+                generateHtmlTable(data);
+            }
+        });
+
+        function generateHtmlTable(data) {
+            var html = '<table  class="table table-condensed table-hover table-striped">';
+
+            if(typeof(data[0]) === 'undefined') {
+                return null;
+            } else {
+                var counter = 0;
+                $.each(data, function( index, row ) {
+                    //bind header
+                    if(index == 0) {
+                        html += '<thead>';
+                        html += '<tr>';
+                        $.each(row, function( index, colData ) {
+                            html += '<th>';
+                            html += colData;
+                            html += '</th>';
+                        });
+                        html += '</tr>';
+                        html += '</thead>';
+                        html += '<tbody>';
+                    } else {
+                        html += '<tr>';
+                        $.each(row, function( index, colData ) {
+                            html += '<td>';
+                            html += colData;
+                            html += '</td>';
+                        });
+                        html += '</tr>';
+                    }
+                    if (counter > 50){
+                        return false;
+                    } else {
+                        counter++;
+                    }
+                });
+                html += '</tbody>';
+                html += '</table>';
+                alert(html);
+                $('#csv-display').append(html);
+            }
+        }
+        </script>
     <h1>Hi there, welcome to 6Homes!</h1>
     <ul>
         <li>This is the site.</li>
     </ul>
+    <div id="csv-display"></div>
 </div>
 
       
