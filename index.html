@@ -9,16 +9,16 @@ title: Home
         var data;
         $.ajax({
             type: "GET",
-            url: "calendar.csv",
+            url: "listings.csv",
             dataType: "text",
             success: function(response)
             {
-                console.log(response + " response ");
                 data = $.csv.toArrays(response);
-                generateHtmlTable(data);
+                //generateHtmlTable(data);
             }
         });
 
+//        test function
         function generateHtmlTable(data) {
             var html = '<table  class="table table-condensed table-hover table-striped">';
 
@@ -65,5 +65,101 @@ title: Home
     <ul>
         <li>This is the site.</li>
     </ul>
+    <div>
+        <!--display first graph: price per person map-->
+        <!--<a href="https://plot.ly/~nlparis/6/?share_key=FZPFSbz3bCwvNwxNItdMlm" target="_blank" title="Plot 6" style="display: block; text-align: center;"><img src="https://plot.ly/~nlparis/6.png?share_key=FZPFSbz3bCwvNwxNItdMlm" alt="Plot 6" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a>-->
+        <!--<script data-plotly="nlparis:6" sharekey-plotly="FZPFSbz3bCwvNwxNItdMlm" src="https://plot.ly/embed.js" async></script>-->
+    </div>
     <div id="csv-display"></div>
+    <p> Price Estimation:</p>
+    Latitude: <input type="text" id="latitude">
+    Longitude: <input type="text" id="longitude">
+    <input type="button" value="Estimate Weekly Earnings at this location" onClick="priceEstimation()">
+    <div class="loading" style="display:none">loading...</div>
+
+    <script>
+        function priceEstimation(){
+            $(".loading").show();
+            var latitude = $("#latitude").val();
+            var longitude = $("#longitude").val();
+            console.log("check lon and lat " + latitude + " " + longitude);
+            //.01 is about 0.7 miles.
+            //I think we should use 0.025 square block for estimations here.
+            var listing_data;
+            $.ajax({
+                type: "GET",
+                url: "listings.csv",
+                dataType: "text",
+                success: function (response) {
+                    console.log("success");
+                    console.log(data[1]);
+                    data = $.csv.toArrays(response);
+                    //shortenData(listing_data);
+                    var length = data.length;
+                    //var latitude = $("#latitude").val();
+                    //var longitude = $("#longitude").val();
+                    console.log(latitude + "latitude");
+                    console.log(longitude + "lade");
+                    var area_array = [0, 12];
+
+                    var proximity = 0.025;
+
+                    for (var i = 1; i < length; ++i){
+                        //0.0025 is my decided range for proximity
+                        if (Math.abs(Math.abs(data[i][48]) - Math.abs(latitude)) <= proximity) { //latitude
+                            console.log("latitude fits");
+                            if (Math.abs(Math.abs(data[i][49]) - Math.abs(longitude)) <= proximity){//longitude
+                                console.log("longitude fits");
+                                area_array.push(data[i]);
+                            }
+                        }
+                    }
+
+                    console.log(area_array);
+
+                    $(".loading").hide();
+                }
+            });
+        }
+
+        function shortenData(data){//not used
+            console.log(data);
+            console.log(data.length);
+            var latitude = $("#latitude").val();
+            var longitude = $("#longitude").val();
+            var area_array;
+            for (var i = 1; i < data.length; ++i){
+                //0.0025 is my decided range for proximity
+                if (Math.abs(Math.abs(data[i][48]) - Math.abs(latitude)) <= 0.0025) { //latitude
+                    console.log("latitude fits");
+                    if (Math.abs(Math.abs(data[i][49]) - Math.abs(longitude)) <= 0.0025){//longitude
+                        console.log("longitude fits");
+                        area_array.push(data[i]);
+                    }
+                }
+            }
+
+            console.log(area_array);
+
+            $(".loading").hide();
+        }
+
+        function findNear(data, length, latitude, longitude, proximity){
+            var area_array;
+            console.log(data[2][48]);
+            console.log(latitude);
+            console.log(proximity);
+            for (var i = 1; i < length; ++i){
+                //0.0025 is my decided range for proximity
+                if (Math.abs(Math.abs(data[i][48]) - Math.abs(latitude)) <= proximity) { //latitude
+                    console.log("latitude fits");
+                    if (Math.abs(Math.abs(data[i][49]) - Math.abs(longitude)) <= proximity){//longitude
+                        console.log("longitude fits");
+                        area_array.push(data[i]);
+                    }
+                }
+            }
+            return area_array;
+        }
+    </script>
 </div>
