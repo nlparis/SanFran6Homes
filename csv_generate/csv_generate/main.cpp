@@ -22,6 +22,7 @@
 #include <vector>
 #include <cmath>
 #include "csvfile.h"
+#include <iomanip>
 
 using namespace std;
 
@@ -86,8 +87,8 @@ int main(int argc, const char * argv[]) {
         homes.push_back(add);
     }
     
-    double latitude_range_step = (fabs(max_latitude) - fabs(min_latitude)) / 100.0;
-    double longitude_range_step = (fabs(max_longitude) - fabs(min_longitude))  / 100.0;
+    double latitude_range_step = (fabs(max_latitude) - fabs(min_latitude)) / 100.000;
+    double longitude_range_step = (fabs(max_longitude) - fabs(min_longitude))  / 100.000;
     
     for (int i = 0; i < homes.size(); ++i){
         homes[i].latitude -= min_latitude;
@@ -107,8 +108,8 @@ int main(int argc, const char * argv[]) {
     prices.resize(10000);
     
     for (int i = 0; i < homes.size(); ++i){
-        prices[homes[i].bucket_num_lat*100 + homes[i].bucket_num_long].price += homes[i].price;
-        ++prices[homes[i].bucket_num_lat*100  + homes[i].bucket_num_long].num_entries;
+        prices[homes[i].bucket_num_lat*100.00000 + homes[i].bucket_num_long].price += homes[i].price;
+        ++prices[homes[i].bucket_num_lat*100.00000  + homes[i].bucket_num_long].num_entries;
     }
     
     for (int i = 0; i < prices.size(); ++i){
@@ -143,7 +144,7 @@ int main(int argc, const char * argv[]) {
             if (prices[i].price /  prices[i].num_entries < 10){
                 prices[i].price = 0;
                 prices[i].num_entries = 0;
-                x += 100;
+                x += 100.00000;
                 y++;
             } else {
                 prices[i].price /= prices[i].num_entries;
@@ -156,12 +157,12 @@ int main(int argc, const char * argv[]) {
     {
         csvfile csv("avg_prices.csv"); // throws exceptions!
         // Header
-        csv << "latitude" << "longitude" << "price" << endrow;
+        csv <<  std::fixed << std::setprecision(7) << "latitude" << "longitude" << "price" << endrow;
         // Data
         for (int i = 0; i < prices.size(); ++i){
-            csv << min_latitude << min_longitude << prices[i].price << endrow;
-            min_latitude += latitude_range_step;
-            min_longitude += longitude_range_step;
+            csv << std::fixed << std::setprecision(7) << min_latitude << min_longitude << prices[i].price << endrow;
+            min_latitude += latitude_range_step/100.00000;
+            min_longitude -= longitude_range_step/100.0000;
         }
     }
     catch (const std::exception& e)

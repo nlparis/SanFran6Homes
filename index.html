@@ -76,90 +76,100 @@ title: Home
     Longitude: <input type="text" id="longitude">
     <input type="button" value="Estimate Weekly Earnings at this location" onClick="priceEstimation()">
     <div class="loading" style="display:none">loading...</div>
+    <div class="estimatedPrice" style="display:none"></div>
 
     <script>
         function priceEstimation(){
             $(".loading").show();
+            $(".estimatedPrice").show();
             var latitude = $("#latitude").val();
             var longitude = $("#longitude").val();
-            console.log("check lon and lat " + latitude + " " + longitude);
-            //.01 is about 0.7 miles.
-            //I think we should use 0.025 square block for estimations here.
+
+            //check ranges of latitude/longitude based on listing.csv data
+            //min(most south) latitude: 37.7069277
+            //max(most north) latitude: 37.8310804
+            //min(most east) longitude: -122.3647732
+            //min(most west) longitude: -122.5115
+
+            if (latitude > 37.8310804 || latitude < 37.7069277 || longitude < -122.5115 || longitude > -122.3647732){
+                window.alert("You have chosen a location out of range. Please narrow your search to be closer to San Francisco (37.773972, -122.431297)");
+                //Ranges defined from data in avg_prices.csv
+                //(which was retrieved from data in weekly_price.csv which got its data from listings.csv)
+                //San Francisco coordinates defined from https://www.latlong.net/place/san-francisco-ca-usa-594.html
+                $(".loading").hide();
+                return;
+            }
+
             var listing_data;
             $.ajax({
                 type: "GET",
-                url: "listings.csv",
+                url: "avg_prices.csv",
                 dataType: "text",
                 success: function (response) {
-                    console.log("success");
-                    console.log(data[1]);
                     data = $.csv.toArrays(response);
+
                     //shortenData(listing_data);
                     var length = data.length;
-                    //var latitude = $("#latitude").val();
-                    //var longitude = $("#longitude").val();
-                    console.log(latitude + "latitude");
-                    console.log(longitude + "lade");
-                    var area_array = [0, 12];
 
-                    var proximity = 0.025;
+                    var area_array = [];//let javascript know this is an array
 
-                    for (var i = 1; i < length; ++i){
-                        //0.0025 is my decided range for proximity
-                        if (Math.abs(Math.abs(data[i][48]) - Math.abs(latitude)) <= proximity) { //latitude
-                            console.log("latitude fits");
-                            if (Math.abs(Math.abs(data[i][49]) - Math.abs(longitude)) <= proximity){//longitude
-                                console.log("longitude fits");
-                                area_array.push(data[i]);
+                    var proximity = 0;
+                    while (area_array.length == 0) {
+                        proximity += 0.001;
+                        //console.log("proximity is " + proximity);
+                        //A 0.01 change in latitude/longitude is about 0.7 miles
+                        //we are doing about 1/10 of that
+
+                        for (var i = 1; i < length; ++i) {
+                            //start at i=1 so we dont get column headers
+
+                            //0.005 is my decided range for proximity
+                            if (Math.abs(Math.abs(data[i][2]) - Math.abs(latitude)) <= proximity) { //2 corresponds to latitude
+                                if (Math.abs(Math.abs(data[i][3]) - Math.abs(longitude)) <= proximity) {//3 corresponds to longitude
+                                    area_array.push(parseInt(data[i][4]));
+                                }
                             }
                         }
                     }
+                    //at this point we have an array of prices that approximately fit the specified location
 
-                    console.log(area_array);
+                    //loop through to find the average.
+                    var avg = 0;
+                    for (var i = 0; i < area_array.length; ++i){
+                        avg += area_array[i];
+                    }
+
+                    //I coded my c++ (which makes the avg_prices.csv to extrapolate
+                    // prices for every location, but this causes very low averages.
+                    // We will perform two more loops, one using values strictly above
+                    // this calculated average, and the other averaging that.
+                    //This way, our data is more accurate and extrapolated decently.
+
+                    avg = avg/area_array.length;
+
+                    var second_area_array = [];
+                    for (var i = 0; i < area_array.length; ++i){
+                        if (area_array[i] > avg){
+                            second_area_array.push(parseInt(area_array[i]));
+                        }
+                    }
+
+                    avg = 0;
+                    for (var i = 0; i < second_area_array.length; ++i){
+                        avg += second_area_array[i];
+                    }
+
+                    avg = avg/second_area_array.length;
+
+                    //since we cleared the "hazy" values, this is now a much better estimation!
 
                     $(".loading").hide();
+                    $(".estimatedPrice").empty();
+                    $(".estimatedPrice").append("Estimated Weekly Income (minus cleaning fees) in this area: $" + avg.toFixed(2));
+                    $(".estimatedPrice").show();
                 }
             });
         }
 
-        function shortenData(data){//not used
-            console.log(data);
-            console.log(data.length);
-            var latitude = $("#latitude").val();
-            var longitude = $("#longitude").val();
-            var area_array;
-            for (var i = 1; i < data.length; ++i){
-                //0.0025 is my decided range for proximity
-                if (Math.abs(Math.abs(data[i][48]) - Math.abs(latitude)) <= 0.0025) { //latitude
-                    console.log("latitude fits");
-                    if (Math.abs(Math.abs(data[i][49]) - Math.abs(longitude)) <= 0.0025){//longitude
-                        console.log("longitude fits");
-                        area_array.push(data[i]);
-                    }
-                }
-            }
-
-            console.log(area_array);
-
-            $(".loading").hide();
-        }
-
-        function findNear(data, length, latitude, longitude, proximity){
-            var area_array;
-            console.log(data[2][48]);
-            console.log(latitude);
-            console.log(proximity);
-            for (var i = 1; i < length; ++i){
-                //0.0025 is my decided range for proximity
-                if (Math.abs(Math.abs(data[i][48]) - Math.abs(latitude)) <= proximity) { //latitude
-                    console.log("latitude fits");
-                    if (Math.abs(Math.abs(data[i][49]) - Math.abs(longitude)) <= proximity){//longitude
-                        console.log("longitude fits");
-                        area_array.push(data[i]);
-                    }
-                }
-            }
-            return area_array;
-        }
     </script>
 </div>
