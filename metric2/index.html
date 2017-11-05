@@ -5,43 +5,89 @@ title: Metric 2
 <div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>-->
+    <script src="../Chart.js-2.7.1/dist/Chart.bundle.js"></script>
+    <script src="../utils.js"></script>
 
-    <h1>Bookings Optimizations</h1>
+    <h1>Metric 2: Yearly Earnings</h1>
 
     <div id="csv-display"></div>
-    <p> Optimal Price Estimation:</p>
-    <input type="button" value="Display Graph" onClick="priceEstimation()">
-    <div class="loading" style="display:none">loading...</div>
-    <div class="estimatedPrice" style="display:none"></div>
+    <ul>
+        <li>Earnings for listing_id 7998215</li>
+        <li>I gathered this data from Calendar.csv, choosing one specific listing</li>
+        <li>Though a limited data set, I wanted to see one trend in the earnings in one listing throughout the year</li>
+        <li>This specific data suggests that Airbnb's are less popular in the Springtime and Summertime</li>
+        <li>My guess is that more people visit San Francisco during the Fall and Winter</li>
+        <li>This data was made using Chart.js</li>
+    </ul>
     <canvas id="bar-chart" width="800" height="450"></canvas>
+
     <script>
-        function priceEstimation() {
 
+        //earnings per month
+        var months = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-            $.ajax({
-                type: "GET",
-                url: "yearly_price.csv",
-                dataType: "text",
-                success: function (response) {
-                    data = $.csv.toArrays(response);
-                    console.log(data);
+        //yearly_price.csv is essentially a copy-paste of one listing's info from calendar.csv
+        //Any blank spaces I set to 0.00
+        $.ajax({
+            type: "GET",
+            url: "yearly_price.csv",
+            dataType: "text",
+            success: function (response) {
+                data = $.csv.toArrays(response);
 
-                    var months = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]];
+                for (var i = 0; i < 365; i++){
+                    var date = data[i][1].split("/");
+                    months[date[0] - 1] = parseInt(months[date[0] - 1]) + parseInt(data[i][2]);
 
-                    for (var i = 0; i < 365; i++){
-                        var date = data[i][1].split("/");
-                        console.log((months[date[0] - 1]));
-                        console.log((data[i][2]));
-                        months[date[0] - 1] = parseInt(months[date[0] - 1]) + parseInt(data[i][2]);
-
-                    }
-                    console.log(months);
                 }
-            });
+
+                //the following javascript is for the Graph to be generated through Chart.js
+                var color = Chart.helpers.color;
+
+                var barChartData = {
+                    labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                    datasets: [{
+                        label: 'Yearly Earnings',
+                        backgroundColor: color(window.chartColors.yellow).alpha(0.5).rgbString(),
+                        borderColor: window.chartColors.yellow,
+                        borderWidth: 1,
+                        data: [
+                            months[0],
+                            months[1],
+                            months[2],
+                            months[3],
+                            months[4],
+                            months[5],
+                            months[6],
+                            months[7],
+                            months[8],
+                            months[9],
+                            months[10],
+                            months[11],
+                            months[12]
+                        ]
+                    }]
+                };
+
+                var ctx = $("#bar-chart");
+                var myBarChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: barChartData,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
+        });
 
 
-
-
-        }
     </script>
 </div>
+
