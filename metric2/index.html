@@ -1,0 +1,45 @@
+---
+layout: default
+title: Metric 2
+---
+<div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
+
+    <h1>Bookings Optimizations</h1>
+
+    <div id="csv-display"></div>
+    <p> Optimal Price Estimation:</p>
+    Latitude: <input type="text" id="latitude">
+    Longitude: <input type="text" id="longitude">
+    <input type="button" value="Estimate Weekly Earnings at this location" onClick="priceEstimation()">
+    <div class="loading" style="display:none">loading...</div>
+    <div class="estimatedPrice" style="display:none"></div>
+
+    <script>
+        function priceEstimation() {
+            $(".loading").show();
+            $(".estimatedPrice").show();
+            var latitude = $("#latitude").val();
+            var longitude = $("#longitude").val();
+
+            //min(most south) latitude: 37.7069277
+            //max(most north) latitude: 37.8310804
+            //min(most east) longitude: -122.3647732
+            //min(most west) longitude: -122.5115
+
+            var geo_data;
+
+            $.ajax({
+                type: "GET",
+                url: "yearly_price.csv",
+                dataType: "text",
+                success: function (response) {
+                    data = $.csv.toArrays(response);
+                    console.log(data);
+                }
+            });
+
+        }
+    </script>
+</div>

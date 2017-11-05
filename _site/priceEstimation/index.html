@@ -1,31 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html>
+<head>
+    <title>Price Estimation</title>
+    <!-- link to main stylesheet -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+<body>
+<nav>
+    <table>
+        <td><a href="/">Home</a></td>
+        <td><a href="/metric1">Price Per Person Mapped</a></td>
+        <td><a href="/metric2">Graph Metric 2</a></td>
+        <td><a href="/metric3">Graph Metric 3</a></td>
+        <td><a href="/priceEstimation">Price Estimation</a></td>
+        <td><a href="/bookingsOptimization">Bookings Optimization</a></td>
+    </table>
+</nav>
+<div class="container">
 
-<!-- Begin Jekyll SEO tag v2.3.0 -->
-<title>Price Estimation | SanFran6Homes</title>
-<meta property="og:title" content="Price Estimation" />
-<meta property="og:locale" content="en_US" />
-<meta name="description" content="There are at least 6 homes you may stay in in San Francisco (for a few nights, probably.) This web app will help you find one (probably.)" />
-<meta property="og:description" content="There are at least 6 homes you may stay in in San Francisco (for a few nights, probably.) This web app will help you find one (probably.)" />
-<link rel="canonical" href="http://localhost:4000/priceEstimation/" />
-<meta property="og:url" content="http://localhost:4000/priceEstimation/" />
-<meta property="og:site_name" content="SanFran6Homes" />
-<script type="application/ld+json">
-{"name":null,"description":"There are at least 6 homes you may stay in in San Francisco (for a few nights, probably.) This web app will help you find one (probably.)","author":null,"@type":"WebPage","url":"http://localhost:4000/priceEstimation/","publisher":null,"image":null,"headline":"Price Estimation","dateModified":null,"datePublished":null,"sameAs":null,"mainEntityOfPage":null,"@context":"http://schema.org"}</script>
-<!-- End Jekyll SEO tag -->
-
-    <link href="/assets/css/style.css?v=99e935d55d07c055eb80c0e67e821d320f98fe6b" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container-lg px-3 my-5 markdown-body">
-      
-        <h1><a href="http://localhost:4000/">SanFran6Homes</a></h1>
-      
-
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
 
 <h1>Price Estimations</h1>
@@ -75,7 +68,7 @@ Longitude: <input type="text" id="longitude">
 
                 var proximity = 0;
                 while (area_array.length == 0) {
-                    proximity += 0.001;
+                    proximity += 0.0025;
                     //console.log("proximity is " + proximity);
                     //A 0.01 change in latitude/longitude is about 0.7 miles
                     //we are doing about 1/10 of that
@@ -134,9 +127,7 @@ Longitude: <input type="text" id="longitude">
 </script>
 
 
-      
-    </div>
-    <script src="/assets/javascript/anchor-js/anchor.min.js"></script>
-    <script>anchors.add();</script>
-  </body>
+</div><!-- /.container -->
+</footer>
+</body>
 </html>
