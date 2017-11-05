@@ -10,25 +10,13 @@ title: Metric 2
 
     <div id="csv-display"></div>
     <p> Optimal Price Estimation:</p>
-    Latitude: <input type="text" id="latitude">
-    Longitude: <input type="text" id="longitude">
-    <input type="button" value="Estimate Weekly Earnings at this location" onClick="priceEstimation()">
+    <input type="button" value="Display Graph" onClick="priceEstimation()">
     <div class="loading" style="display:none">loading...</div>
     <div class="estimatedPrice" style="display:none"></div>
-
+    <canvas id="bar-chart" width="800" height="450"></canvas>
     <script>
         function priceEstimation() {
-            $(".loading").show();
-            $(".estimatedPrice").show();
-            var latitude = $("#latitude").val();
-            var longitude = $("#longitude").val();
 
-            //min(most south) latitude: 37.7069277
-            //max(most north) latitude: 37.8310804
-            //min(most east) longitude: -122.3647732
-            //min(most west) longitude: -122.5115
-
-            var geo_data;
 
             $.ajax({
                 type: "GET",
@@ -37,8 +25,22 @@ title: Metric 2
                 success: function (response) {
                     data = $.csv.toArrays(response);
                     console.log(data);
+
+                    var months = [[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]];
+
+                    for (var i = 0; i < 365; i++){
+                        var date = data[i][1].split("/");
+                        console.log((months[date[0] - 1]));
+                        console.log((data[i][2]));
+                        months[date[0] - 1] = parseInt(months[date[0] - 1]) + parseInt(data[i][2]);
+
+                    }
+                    console.log(months);
                 }
             });
+
+
+
 
         }
     </script>
