@@ -70,9 +70,9 @@ Longitude: <input type="text" id="longitude">
                 var proximity = 0;
                 while (area_array.length == 0) {
                     proximity += 0.0025;
-                    //console.log("proximity is " + proximity);
-                    //A 0.01 change in latitude/longitude is about 0.7 miles
-                    //we are doing about 1/10 of that
+                    //A 0.01 change in latitude/longitude is about 0.69 miles
+                    //we are doing a bit more than that.
+                    //This number is larger than in bookings Optimizations, but we do more averages here
 
                     for (var i = 1; i < length; ++i) {
                         //start at i=1 so we dont get column headers
@@ -127,6 +127,7 @@ Longitude: <input type="text" id="longitude">
 
 </script>
 
+<!--pictures for fun!-->
 <img src="../bay.jpg" alt="Looking out on the Bay" height="600px" width="900px">
 
 

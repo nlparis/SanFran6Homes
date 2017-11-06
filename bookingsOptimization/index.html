@@ -26,9 +26,6 @@ Longitude: <input type="text" id="longitude">
             dataType: "text",
             success: function (response) {
                 data = $.csv.toArrays(response);
-                //console.log(data);
-
-                //console.log(data.length);
 
                 var percentages = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                 var monthly_percentages = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -64,9 +61,6 @@ Longitude: <input type="text" id="longitude">
                 var d = new Date();
                 var curr_month = d.getMonth();
 
-                console.log("yearly_avg is " + yearly_avg);
-                console.log("asdfdsfasdfda is " + monthly_percentages[curr_month - 1] / yearly_avg);
-
                 //pass through the occupancy rate for the current month divided by the yearly average occupancy rate
                 //this is number is a multiplier for the price calculated in priceOptimization
                 priceOptimization(monthly_percentages[curr_month - 1] / yearly_avg, curr_month);
@@ -77,7 +71,6 @@ Longitude: <input type="text" id="longitude">
 
     function priceOptimization(occupancy_multiplier, month){
         //just like in priceEstimation, I am using very similar code
-    console.log("priceOptimization");
         $(".optimizedPrice").show();
         var latitude = $("#latitude").val();
         var longitude = $("#longitude").val();
@@ -104,7 +97,6 @@ Longitude: <input type="text" id="longitude">
             dataType: "text",
             success: function (response) {
                 data = $.csv.toArrays(response);
-                console.log(data);
 
                 var length = data.length;
 
@@ -154,7 +146,7 @@ Longitude: <input type="text" id="longitude">
 
 </script>
 
-
+<!--fun, pretty pictures!!!-->
 <img src="../lookout.jpg" alt="Looking out on the City" height="600px" width="900px">
 <p style="font-size: 10px">Fun fact: Michael Stevens from Vsauce has been here too!</p>
 <img src="../VsauceGoldenGate.jpg" alt="Vsauce" height="200px" width="300px">
