@@ -44,9 +44,3 @@ ul.posts li {
 
 table { border-collapse: collapse; }
 tr { border: none; }
-td {
-    font-weight: bold;
-    padding: 8px;
-    border-right: solid 1px #f00;
-    border-left: solid 1px #f00;
-}
