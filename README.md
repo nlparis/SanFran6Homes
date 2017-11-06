@@ -11,3 +11,4 @@ Sources:
 plot.ly - for metric 1
 http://www.chartjs.org and their javascript files for metrics 2 and 3
 https://www.latlong.net/place/san-francisco-ca-usa-594.html for San Francisco's geo-location (latitude/longitude)
+https://jekyllrb.com to run my site locally and for an attempted use of their code structure. (Upon putting my code on github Jekyll did not sync with my html the same way as it did locally.)
