@@ -1,0 +1,160 @@
+---
+layout: default
+title: Bookings Optimization
+---
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
+
+<h1>Bookings Optimization</h1>
+
+<div id="csv-display"></div>
+Latitude: <input type="text" id="latitude">
+Longitude: <input type="text" id="longitude">
+<input type="button" value="Optimize Price at this location" onClick="calculate()">
+<div class="loading" style="display:none">loading...</div>
+<div style="padding-bottom: 50px" class="optimizedPrice" style="display:none"></div>
+
+<script>
+    function calculate() {
+        $(".loading").show();
+        $(".optimizedPrice").empty();
+        var monthly_totals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        $.ajax({
+            type: "GET",
+            url: "../calendar.csv",
+            dataType: "text",
+            success: function (response) {
+                data = $.csv.toArrays(response);
+                //console.log(data);
+
+                //console.log(data.length);
+
+                var percentages = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                var monthly_percentages = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                //the next loops makes occupancy rate data for each month, so we can take the time of year
+                //into account for the optimized price
+                for (var j = 1; j < data.length; j++) {
+                    var date = data[j][1].split("-");
+
+                    var month = date[2] - 1;
+                    if (data[j][2] == "t") {
+                        // zero indexed month
+                        percentages[month]++;
+                    }
+
+                    monthly_totals[month]++;
+                }
+
+
+                //yearly average for comparison
+                var yearly_avg = 0;
+                var yearly_sum = 0;
+                var yearly_total = 0;
+
+                //calculate yearly and monthy averages
+                for (var i = 0; i < 12; ++i) {
+                    monthly_percentages[i] = percentages[i] / monthly_totals[i];
+                    yearly_sum += percentages[i];
+                    yearly_total += monthly_totals[i];
+                }
+
+                yearly_avg = yearly_sum / yearly_total;
+
+                var d = new Date();
+                var curr_month = d.getMonth();
+
+                console.log("yearly_avg is " + yearly_avg);
+                console.log("asdfdsfasdfda is " + monthly_percentages[curr_month - 1] / yearly_avg);
+
+                //pass through the occupancy rate for the current month divided by the yearly average occupancy rate
+                //this is number is a multiplier for the price calculated in priceOptimization
+                priceOptimization(monthly_percentages[curr_month - 1] / yearly_avg, curr_month);
+            }
+        });
+    }
+
+
+    function priceOptimization(occupancy_multiplier, month){
+        //just like in priceEstimation, I am using very similar code
+    console.log("priceOptimization");
+        $(".optimizedPrice").show();
+        var latitude = $("#latitude").val();
+        var longitude = $("#longitude").val();
+
+        //check ranges of latitude/longitude based on listing.csv data
+        //min(most south) latitude: 37.7069277
+        //max(most north) latitude: 37.8310804
+        //min(most east) longitude: -122.3647732
+        //min(most west) longitude: -122.5115
+
+        if (latitude > 37.8310804 || latitude < 37.7069277 || longitude < -122.5115 || longitude > -122.3647732){
+            window.alert("You have chosen a location out of range. Please narrow your search to be closer to San Francisco (37.773972, -122.431297)");
+            //Ranges defined from data in avg_prices.csv
+            //(which was retrieved from data in weekly_price.csv which got its data from listings.csv)
+            //San Francisco coordinates defined from https://www.latlong.net/place/san-francisco-ca-usa-594.html
+            $(".loading").hide();
+            return;
+        }
+
+        var nearby_data = [];
+        $.ajax({
+            type: "GET",
+            url: "../avg_prices_small.csv",
+            dataType: "text",
+            success: function (response) {
+                data = $.csv.toArrays(response);
+                console.log(data);
+
+                var length = data.length;
+
+                var area_array = [];
+
+                var proximity = 0;
+                while (area_array.length == 0) {
+                    proximity += 0.0005;
+                    //A 0.0005 change in latitude/longitude is about 0.0345 miles
+                    //This small distance allows the data to be very prices for each location
+
+                    for (var i = 1; i < length; ++i) {
+                        //start at i=1 so we dont get column headers
+
+                        //0.0005 is my decided range for proximity
+                        if (Math.abs(Math.abs(data[i][0]) - Math.abs(latitude)) <= proximity) { //0 corresponds to latitude
+                            if (Math.abs(Math.abs(data[i][1]) - Math.abs(longitude)) <= proximity) {//1 corresponds to longitude
+                                area_array.push(parseInt(data[i][2]));
+                            }
+                        }
+                    }
+                }
+                //at this point we have an array of prices that approximately fit the specified location
+
+                //loop through to calculate the average.
+                var avg = 0;
+                for (var i = 0; i < area_array.length; ++i){
+                    avg += area_array[i];
+                }
+
+                avg = avg/area_array.length;
+
+                //we have the average price for this location
+                //now I want to consider the general average occupancy given the time of the year
+                //For higher than average occupancy rates, we can charge a higher price
+                //For lower than average occupancy rates, we would want to charge a lower price
+                avg = avg * occupancy_multiplier;
+
+                var Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+                $(".loading").hide();
+                $(".optimizedPrice").append("Optimized Price in this location for the month of " + Months[month] + " is $" + avg.toFixed(2));
+                $(".optimizedPrice").show();
+            }
+        });
+    }
+
+</script>
+
+
+<img src="../lookout.jpg" alt="Looking out on the City" height="600px" width="900px">
+<p style="font-size: 10px">Fun fact: Michael Stevens from Vsauce has been here too!</p>
+<img src="../VsauceGoldenGate.jpg" alt="Vsauce" height="200px" width="300px">
